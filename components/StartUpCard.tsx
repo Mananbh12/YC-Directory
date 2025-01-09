@@ -5,9 +5,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Author, Startup } from "@/sanity/types";
 
-export type StartupTypeCard = Omit<Startup, "author"> & { author?: Author };
+export type StartUpTypeCard = Omit<Startup, "author"> & { author?: Author };
 
-const StartupCard = ({ post }: { post: StartupTypeCard }) => {
+const StartUpCard = ({ post }: { post: StartUpTypeCard }) => {
   const {
     _createdAt,
     views,
@@ -68,4 +68,4 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
 };
 
 
-export default StartupCard;
+export default StartUpCard;
