@@ -1,21 +1,21 @@
 import { AUTHOR_BY_GITHUB_ID_QUERY } from "@/lib/queries";
 import NextAuth from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import { client } from "@/sanity/lib/client";
 import { writeClient } from "@/sanity/lib/write-clients";
+import GitHub from "next-auth/providers/github";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [GitHubProvider],
+  providers: [GitHub],
   callbacks: {
-    async signIn({ user, profile }) {
-      const { id, login, bio } = profile || {};
-      const { name, email, image } = user || {};
-
-      const existingUser = await client.withConfig({useCdn: false}).fetch(AUTHOR_BY_GITHUB_ID_QUERY, { 
-        id,
-      });
-
-  
+    async signIn({
+      user: { name, email, image },
+      profile: { id, login, bio },
+    }) {
+      const existingUser = await client
+        .withConfig({ useCdn: false })
+        .fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
+          id,
+        });
 
       if (!existingUser) {
         await writeClient.create({
@@ -25,24 +25,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           username: login,
           email,
           image,
-          bio: bio || ",",
+          bio: bio || "",
         });
       }
 
       return true;
     },
-    async jwt({token, account, profile}){
-      if(account && profile){
-        const user = await client.withConfig({useCdn: false}).fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
-          id: profile?.id,
-        });
-        token.id = user?.id;
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        const user = await client
+          .withConfig({ useCdn: false })
+          .fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
+            id: profile?.id,
+          });
+
+        token.id = user?._id;
       }
+
       return token;
     },
-    async session({session, token}){
-      Object.assign(session, {id: token.id});
+    async session({ session, token }) {
+      Object.assign(session, { id: token.id });
       return session;
-    }
+    },
   },
 });

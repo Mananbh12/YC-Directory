@@ -16,7 +16,8 @@ const md = markdownit();
 const StartUpTypeCard = async ({params}: {params: Promise<{id: string}>}) => {
     const id = (await params).id;
 
-    //console.log({id});
+    console.log("id",{id});
+    
 
     const post = await client.fetch(STARTUP_BY_ID_QUERY, {id});
     if(!post) return notFound();
